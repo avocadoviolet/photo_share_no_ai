@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">photo_share_no_ai</string>
+    <string name="home">home</string>
+    <string name="camera">camera</string>
 </resources>
