@@ -16,8 +16,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.photo_share_no_ai.ui.theme.Purple80
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
@@ -31,48 +31,61 @@ fun CameraScreen (modifier: Modifier = Modifier) {
     val cameraPermissionState : PermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
     // fill the whole screen with the camera
 
+
+    if (cameraPermissionState.status.isGranted) {
+        CameraPreview()
+    }
+    else {
+        CameraPermission(
+            permissionRequest = cameraPermissionState::launchPermissionRequest,
+            modifier = Modifier.fillMaxSize()
+        )
+    }
+
+    }
+
+@Composable
+fun CameraPreview() {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val cameraController = remember { LifecycleCameraController(context) }
 
-    if (cameraPermissionState.status.isGranted) {
-        Box (
-            // fill the whole screen with the camera
+    Box (
+        // fill the whole screen with the camera
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        AndroidView(
             modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            AndroidView(
-                modifier = Modifier.fillMaxSize(),
-                factory = {
+            factory = {
                     context ->
-                    PreviewView(context).apply {
-                        layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-                        setBackgroundColor(Purple80.toArgb())
-                        scaleType = PreviewView.ScaleType.FILL_START
-                    }.also {
+                PreviewView(context).apply {
+                    layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                    setBackgroundColor(Purple80.toArgb())
+                    scaleType = PreviewView.ScaleType.FILL_START
+                }.also {
                         previewView ->
-                        previewView.controller = cameraController
-                        cameraController.bindToLifecycle(lifecycleOwner)
-                    }
-                }
-            )
-        }
-    }
-    else {
-        Box (
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
-        ) {
-            Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(text = "Please Grant Camera Permission")
-                Button(onClick = cameraPermissionState::launchPermissionRequest) {
-                    Text(text = "Give Permission")
+                    previewView.controller = cameraController
+                    cameraController.bindToLifecycle(lifecycleOwner)
                 }
             }
+        )
+    }
+}
+
+@Composable
+fun CameraPermission(
+    permissionRequest : () -> Unit,
+    modifier : Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "Please Grant Camera Permission")
+        Button(onClick = permissionRequest) {
+            Text(text = "Give Permission")
         }
     }
-
-    }
+}
