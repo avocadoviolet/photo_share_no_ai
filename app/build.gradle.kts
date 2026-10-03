@@ -47,7 +47,10 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.ui.graphics)
     implementation(libs.material)
+    implementation("androidx.exifinterface:exifinterface:1.3.6")
+    implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.navigation:navigation-compose:2.7.4")
     // CameraX core library using the camera2 implementation
     val camerax_version = "1.7.0-alpha03"
